@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "prettier": "^3.5.3",
+    "selenium-webdriver": "^4.31.0"
+  },
+  "scripts": {
+    "run": "node selenium_script.js"
+  }
+}
