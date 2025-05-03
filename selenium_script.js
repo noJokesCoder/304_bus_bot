@@ -11,8 +11,15 @@ browserOptions.addArguments('--headless'); // Run in headless mode
 browserOptions.addArguments('--incognito'); // Optional: Disable sandboxing for better compatibility
 
 async function runSeleniumScript({ time, direction, busStop }) {
-  const hour = new Date(time).getHours();
+  const hour = new Date(time).getHours() + 7;
   const minutes = new Date(time).getMinutes();
+
+  // Can't be time in between: 01:00 and 04:00
+  if (time === 1 || time < 5) {
+    console.log('That is too late. Buses dont run!');
+    // TODO: add send a reply to a bot!
+    return;
+  }
 
   // Initialize the WebDriver
   let driver = await new Builder()
@@ -50,19 +57,49 @@ async function runSeleniumScript({ time, direction, busStop }) {
       // By.linkText(busStop)
     );
 
-
+    // TODO: add send a reply if nothing found
+    if (busStopTrElements.length === 0) {
+      console.log('No bus stop found');
+      return;
+    }
 
     console.log('busStopTrElements:', busStopTrElements.length);
-    console.log('busStopTrElements:', busStopTrElements);
 
-    let timeCells = await driver.findElements(
-      // By.css('.line-timetable-trips table tbody tr td')
-      By.xpath(`//td[contains(text(), "${hour}:")]`)
-    );
+    let timeCellsExactHour = [];
+    let timeCellsNextHour = [];
+    const searchHour = hour < 10 ? `0${hour}` : `${hour}`;
+    const searchHourNext = hour + 1 < 10 ? `0${hour + 1}` : `${hour + 1}`;
+
+    console.log('searchHour:', searchHour);
+    console.log('searchHourNext:', searchHourNext);
+
+    for (const busStopTrElement of busStopTrElements) {
+      const [exactHourCells, nextHourCells] = await Promise.allSettled([
+        busStopTrElement.findElements(
+          By.xpath(`.//td[contains(normalize-space(text()), "${searchHour}:")]`)
+        ),
+        busStopTrElement.findElements(
+          By.xpath(
+            `.//td[contains(normalize-space(text()), "${searchHourNext}:")]`
+          )
+        ),
+      ]).then(results =>
+        results.map(result =>
+          result.status === 'fulfilled' ? result.value : []
+        )
+      );
+
+      console.log('Exact Hour Cells:', exactHourCells.length);
+      console.log('Next Hour Cells:', nextHourCells.length);
+
+      timeCellsExactHour.push(...exactHourCells);
+      timeCellsNextHour.push(...nextHourCells);
+    }
 
     console.log('time:', hour);
 
-    console.log('number of cells:', timeCells.length);
+    console.log('number of cells EXACT:', timeCellsExactHour.length);
+    console.log('number of cells NEXT:', timeCellsNextHour.length);
     // console.log('Cell:', await timeCells[0].getText());
 
     if (direction !== DIRECTIONS.APELDOORN) {
@@ -97,7 +134,7 @@ async function runSeleniumScript({ time, direction, busStop }) {
 console.time('runSeleniumScript');
 (async () => {
   await runSeleniumScript({
-    time: 1745840488132,
+    time: 1746309877957,
     direction: 'Apeldoorn',
     busStop: 'Nachtegaalweg',
   }); // Await the function call to measure the actual execution time
