@@ -1,8 +1,3 @@
-const DIRECTIONS = {
-    ZWOLLE: 'Away',
-    APELDOORN: 'Return',
-};
+const DIRECTIONS = { ZWOLLE: 'Away', APELDOORN: 'Return' };
 
-module.exports = {
-    DIRECTIONS,
-};
+module.exports = { DIRECTIONS };
