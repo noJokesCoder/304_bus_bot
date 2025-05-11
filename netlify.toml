@@ -1,0 +1,33 @@
+[functions]
+    external_node_modules = ["express", "node-telegram-bot-api"]
+    node_bundler = "esbuild"
+    directory = "netlify/func/"
+
+[build]
+    base = "/"
+    command = "npm run build"
+    functions = "netlify/func/"
+
+[dev]
+    framework = "#custom"
+    command = "npm run start"
+    port = 8888
+    targetPort = 8081
+    publish = "."
+
+[context.production.environment]
+    NODE_ENV = "production"
+    PORT = "8081"
+    URL = "https://gs-bot.netlify.app"
+    TOKEN = "7032872500:AAH96ZtDTv3ZwLLjGPj7sw_AdOs4a3jf1vo"
+
+[context.dev.environment]
+    NODE_ENV = "development"
+    URL = "https://gs-bot.netlify.app"
+    TOKEN = "7032872500:AAH96ZtDTv3ZwLLjGPj7sw_AdOs4a3jf1vo"
+
+[[redirects]]
+    force = true
+    from = "/*"
+    to = "/.netlify/func/index"
+    status = 200
