@@ -1,11 +1,20 @@
 {
   "dependencies": {
-    "selenium-webdriver": "^4.31.0"
+    "@netlify/functions": "^3.1.7",
+    "@types/express": "^5.0.1",
+    "express": "^5.1.0",
+    "node-telegram-bot-api": "^0.66.0",
+    "selenium-webdriver": "^4.31.0",
+    "serverless-http": "^3.2.0"
   },
   "scripts": {
-    "run": "node selenium_script.js"
+    "build": "echo building project",
+    "run_selenium": "node selenium_script.js",
+    "start": "node func/index.js",
+    "dev": "netlify dev --port 8888"
   },
   "devDependencies": {
+    "@types/node-telegram-bot-api": "^0.64.8",
     "prettier": "^3.5.3"
   }
 }
