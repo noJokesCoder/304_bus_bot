@@ -60,7 +60,6 @@ async function runSeleniumScript({ time, direction, busStop }) {
 
         // TODO: add send a reply if nothing found
         if (busStopTrElements.length === 0) {
-
             return;
         }
 
@@ -112,7 +111,6 @@ async function runSeleniumScript({ time, direction, busStop }) {
                 const cellText = await cell.getText();
 
                 if (cellText && cellText.trim().match(/^\d{2}:\d{2}/)) {
-
                     return cellText;
                 }
             })
