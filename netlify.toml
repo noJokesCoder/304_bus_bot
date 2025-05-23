@@ -25,6 +25,7 @@
     NODE_ENV = "development"
     URL = "https://gs-bot.netlify.app"
     TOKEN = "8187510934:AAGRtzid0wOsfX7F21QMCbD6cU5k4iKPrTw"
+    PORT = "8081"
 
 [[redirects]]
     force = true
