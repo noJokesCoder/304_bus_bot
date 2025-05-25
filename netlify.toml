@@ -19,11 +19,13 @@
     NODE_ENV = "production"
     PORT = "8081"
     URL = "https://gs-bot.netlify.app"
+    SELENIUM_URL = "https://reisinfo.rrreis.nl/nl/rrreis/lijnen/4304/dienstregeling/heen"
     TOKEN = "8187510934:AAGRtzid0wOsfX7F21QMCbD6cU5k4iKPrTw"
 
 [context.dev.environment]
     NODE_ENV = "development"
     URL = "https://gs-bot.netlify.app"
+    SELENIUM_URL = "https://reisinfo.rrreis.nl/nl/rrreis/lijnen/4304/dienstregeling/heen"
     TOKEN = "8187510934:AAGRtzid0wOsfX7F21QMCbD6cU5k4iKPrTw"
     PORT = "8081"
 
