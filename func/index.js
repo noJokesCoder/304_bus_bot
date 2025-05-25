@@ -187,12 +187,16 @@ bot.on('callback_query', async query => {
 
         const replyText =
             results.busesForCurrentHour.length || results.busesForNextHour.length ?
-                `Buses departing from *${busStop}* at ${hours}:${minutes}:\n\n` +
-                `*${results.busesForCurrentHour.join('*, *')}*` +
-                `*${results.busesForNextHour.join('*, *')}*`
+                `Buses departing from *${busStop}* at ${hours}:${minutes} or later:\n\n` +
+                (results.busesForCurrentHour.length ?
+                    `*Departing soon:* \[ ${results.busesForCurrentHour.join(' | ')} \] \n`
+                :   '') +
+                (results.busesForNextHour.length ?
+                    `*Departing later:* \[ ${results.busesForNextHour.join(' | ')} \] \n`
+                :   '')
             :   `No buses departing from *${busStop}* at ${hours}:${minutes}.\n\n`;
 
-        bot.sendMessage(chatId, replyText, { parse_mode: 'Markdown' });
+        bot.sendMessage(chatId, replyText, { parse_mode: 'MarkdownV2' });
     }
 });
 
