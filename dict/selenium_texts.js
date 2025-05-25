@@ -1,4 +1,13 @@
-const DIRECTIONS = { ZWOLLE: 'Away', APELDOORN: 'Return' };
+const DIRECTIONS = { ZWOLLE: 'zwolle', APELDOORN: 'apeldoorn' };
+const WEEKDAYS = {
+    SUNDAY: 0,
+    MONDAY: 1,
+    TUESDAY: 2,
+    WEDNESDAY: 3,
+    THURSDAY: 4,
+    FRIDAY: 5,
+    SATURDAY: 6,
+};
 
 const BUS_STOPS = [
     'Apeldoorn, Station',
@@ -45,4 +54,4 @@ const BUS_STOPS = [
     'Koningin Wilhelminastraat',
 ];
 
-module.exports = { DIRECTIONS, BUS_STOPS };
+module.exports = { DIRECTIONS, BUS_STOPS, WEEKDAYS };
