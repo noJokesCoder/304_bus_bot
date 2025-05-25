@@ -75,11 +75,15 @@ async function runSeleniumScript({ time, direction, busStop }) {
 
         for (const busStopTrElement of busStopTrElements) {
             const [exactHourCells, nextHourCells] = await Promise.allSettled([
-                busStopTrElement.findElements(By.xpath(`.//td[contains(normalize-space(text()), "${searchHour}:")]`)),
+                busStopTrElement.findElements(
+                    By.xpath(`.//td[contains(normalize-space(text()), "${searchHour}:")]`)
+                ),
                 busStopTrElement.findElements(
                     By.xpath(`.//td[contains(normalize-space(text()), "${searchHourNext}:")]`)
                 ),
-            ]).then(results => results.map(result => (result.status === 'fulfilled' ? result.value : [])));
+            ]).then(results =>
+                results.map(result => (result.status === 'fulfilled' ? result.value : []))
+            );
 
             timeCellsExactHour.push(...exactHourCells);
             timeCellsNextHour.push(...nextHourCells);

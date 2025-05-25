@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "echo building project",
-    "run_selenium": "node selenium_script.js",
+    "run_selenium": "node utils/selenium_script.js",
     "start": "node func/index.js",
     "dev": "netlify dev --port 8888"
   },
