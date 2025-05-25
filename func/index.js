@@ -92,7 +92,6 @@ bot.onText(/^\/about$/, msg => {
 
 bot.on('callback_query', async query => {
     const {
-        // TODO: think how to automatically set the lang if user has one of the supported languages on a phone
         from: { id: userId, first_name },
         data,
         message: {
