@@ -19,11 +19,17 @@ const levenshtein = (a, b) => {
 };
 
 const findStop = searchStop => {
-    if (!searchStop) {
-        return null;
+    if (!searchStop || searchStop.length < 4) {
+        return { result: null };
     }
-    if (BUS_STOPS.includes(searchStop) || BUS_STOPS.find(stop => stop.toLowerCase() === searchStop.toLowerCase())) {
+    if (BUS_STOPS.includes(searchStop)) {
         return { isExact: true, result: searchStop };
+    }
+    if (BUS_STOPS.find(stop => stop.match(new RegExp(searchStop, 'gi')))) {
+        return {
+            isExact: false,
+            result: BUS_STOPS.find(stop => stop.match(new RegExp(searchStop, 'gi'))),
+        };
     } else {
         let suggestion = null;
         let minDistance = Infinity;
@@ -36,7 +42,7 @@ const findStop = searchStop => {
             }
         });
 
-        return suggestion ? { isExact: false, result: suggestion } : null;
+        return suggestion ? { isExact: false, result: suggestion } : { result: null };
     }
 };
 
