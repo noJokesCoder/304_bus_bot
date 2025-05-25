@@ -124,14 +124,4 @@ async function runSeleniumScript({ time: { hours, minutes, day }, direction, bus
     return { busesForCurrentHour, busesForNextHour };
 }
 
-runSeleniumScript({
-    time: {
-        hours: new Date().getHours(),
-        minutes: new Date().getMinutes(),
-        day: new Date().getDay(),
-    },
-    direction: DIRECTIONS.ZWOLLE,
-    busStop: 'Nachtegaalweg',
-});
-
 module.exports = runSeleniumScript;
