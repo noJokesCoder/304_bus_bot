@@ -1,5 +1,12 @@
 /node_modules
+/node_modules/**
 /.env
 /.DS_Store
 /.idea
 /.vscode
+
+# Local Netlify folder
+.netlify
+
+# config file:
+netlify.toml

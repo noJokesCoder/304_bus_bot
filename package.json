@@ -1,11 +1,25 @@
 {
-  "dependencies": {
-    "selenium-webdriver": "^4.31.0"
-  },
-  "scripts": {
-    "run": "node selenium_script.js"
-  },
-  "devDependencies": {
-    "prettier": "^3.5.3"
-  }
+    "dependencies": {
+        "@netlify/functions": "^3.1.7",
+        "@types/express": "^5.0.1",
+        "express": "^5.1.0",
+        "node-telegram-bot-api": "^0.66.0",
+        "selenium-webdriver": "^4.31.0",
+        "serverless-http": "^3.2.0"
+    },
+    "scripts": {
+        "build": "echo building project",
+        "run_selenium": "SELENIUM_URL='https://reisinfo.rrreis.nl/nl/rrreis/lijnen/4304/dienstregeling/heen' node utils/selenium_script.js",
+        "start": "node func/index.js",
+        "dev": "netlify dev --port 8888"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.27.0",
+        "@types/node-telegram-bot-api": "^0.64.8",
+        "eslint": "^9.27.0",
+        "eslint-config-prettier": "^10.1.5",
+        "eslint-plugin-prettier": "^5.4.0",
+        "globals": "^16.1.0",
+        "prettier": "^3.5.3"
+    }
 }
