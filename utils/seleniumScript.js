@@ -1,7 +1,7 @@
 const { By, Builder } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 
-const { DIRECTIONS, WEEKDAYS } = require('../dict/selenium_texts.js');
+const { DIRECTIONS, WEEKDAYS } = require('../dict/seleniumTexts.js');
 const SELENIUM_URL = process.env.SELENIUM_URL;
 
 const browserOptions = new chrome.Options();
@@ -52,11 +52,11 @@ async function runSeleniumScript({ time: { hours, minutes, day }, direction, bus
         const dayOption = await daySelect.findElement(
             By.xpath(
                 `.//option[contains(text(), '${
-                    isWeekend ?
-                        day === WEEKDAYS.SATURDAY ?
-                            'zaterdag'
-                        :   'zon- en feestdagen'
-                    :   'maandag t/m vrijdag'
+                    isWeekend
+                        ? day === WEEKDAYS.SATURDAY
+                            ? 'zaterdag'
+                            : 'zon- en feestdagen'
+                        : 'maandag t/m vrijdag'
                 }')]`
             )
         );
