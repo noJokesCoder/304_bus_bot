@@ -1,4 +1,4 @@
-const { BUS_STOPS } = require('../dict/selenium_texts.js');
+const { BUS_STOPS } = require('../dict/seleniumTexts.js');
 
 // fuzzy match: allow up to 2 character differences (Levenshtein distance)
 const levenshtein = (a, b) => {
@@ -10,9 +10,13 @@ const levenshtein = (a, b) => {
     for (let i = 1; i <= a.length; i++) {
         for (let j = 1; j <= b.length; j++) {
             matrix[i][j] =
-                a[i - 1] === b[j - 1] ?
-                    matrix[i - 1][j - 1]
-                :   Math.min(matrix[i - 1][j - 1] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j] + 1);
+                a[i - 1] === b[j - 1]
+                    ? matrix[i - 1][j - 1]
+                    : Math.min(
+                          matrix[i - 1][j - 1] + 1,
+                          matrix[i][j - 1] + 1,
+                          matrix[i - 1][j] + 1
+                      );
         }
     }
     return matrix[a.length][b.length];
