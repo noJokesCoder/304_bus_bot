@@ -9,7 +9,7 @@
     },
     "scripts": {
         "build": "echo building project",
-        "run_selenium": "SELENIUM_URL='https://reisinfo.rrreis.nl/nl/rrreis/lijnen/4304/dienstregeling/heen' node utils/selenium_script.js",
+        "run_selenium": "SELENIUM_URL='https://reisinfo.rrreis.nl/nl/rrreis/lijnen/4304/dienstregeling/heen' node utils/seleniumScript.js",
         "start": "node func/index.js",
         "dev": "netlify dev --port 8888"
     },
