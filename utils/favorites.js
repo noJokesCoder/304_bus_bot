@@ -20,17 +20,20 @@ const arraySlicer = (arr, slice = 2) => {
 };
 
 const getAllStopsBtnList = () => {
-    const btnList = BUS_STOPS.map(stop => ({ text: `${stop}`, callback_data: `#${stop}#` }));
+    const btnList = BUS_STOPS.map(stop => ({ text: `${stop}`, callback_data: `+${stop}+` }));
     const chunks = arraySlicer(btnList, 3);
 
     return chunks;
 };
 
-const getFavoritesBtnList = stops => {
+const getFavoritesBtnList = (stops, isDeleteMode = false) => {
     if (stops.length === 0) return [];
 
     const chunkSize = stops.length >= 3 ? 3 : 2;
-    const preparedArr = stops.map(stop => ({ text: stop, callback_data: `##${stop}##` }));
+    const preparedArr = stops.map(stop => ({
+        text: stop,
+        callback_data: isDeleteMode ? `#!${stop}!#` : `##${stop}##`,
+    }));
     const chunks = arraySlicer(preparedArr, chunkSize);
 
     return chunks;
