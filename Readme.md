@@ -46,4 +46,4 @@ The bot will show you:
 
 ## Try It Out
 
-Search for "@bus_304_bot" on Telegram or click 👉 [here](https://t.me/@bus_304_bot) to start using the bot.
+Search for "@bus_304_bot" on Telegram or click 👉 [here](https://t.me/bus_304_bot) to start using the bot.
