@@ -1,4 +1,4 @@
-const { BUS_STOPS } = require('../dict/selenium_texts.js');
+const { BUS_STOPS } = require('../dict/seleniumTexts.js');
 
 // fuzzy match: allow up to 2 character differences (Levenshtein distance)
 const levenshtein = (a, b) => {
@@ -10,13 +10,32 @@ const levenshtein = (a, b) => {
     for (let i = 1; i <= a.length; i++) {
         for (let j = 1; j <= b.length; j++) {
             matrix[i][j] =
-                a[i - 1] === b[j - 1] ?
-                    matrix[i - 1][j - 1]
-                :   Math.min(matrix[i - 1][j - 1] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j] + 1);
+                a[i - 1] === b[j - 1]
+                    ? matrix[i - 1][j - 1]
+                    : Math.min(
+                          matrix[i - 1][j - 1] + 1,
+                          matrix[i][j - 1] + 1,
+                          matrix[i - 1][j] + 1
+                      );
         }
     }
     return matrix[a.length][b.length];
 };
+
+/**
+ * @typedef {Object} FindStopResponse
+ * @property {boolean} [isExact] - Whether the search matches user input exactly. Only present for matches
+ * @property {string | null} result - The matched bus stop name or null if no match found
+
+/**
+ * Searches for a bus stop by name, supporting exact, partial, and fuzzy matches
+ * @param {string} searchStop - bus stop to look for
+ * @returns {FindStopResponse}
+ * @example
+ * findStop("Station") // => { isExact: false, result: "Station Noord" }
+ * findStop("Station Noord") // => { isExact: true, result: "Station Noord" }
+ * findStop("xyz") // => { result: null }
+ */
 
 const findStop = searchStop => {
     if (!searchStop || searchStop.length < 4) {
