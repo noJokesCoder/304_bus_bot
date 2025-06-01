@@ -2,7 +2,7 @@ const { By, Builder } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 
 const { DIRECTIONS, WEEKDAYS } = require('../dict/seleniumTexts.js');
-const SELENIUM_URL = process.env.SELENIUM_URL;
+const SELENIUM = process.env.SELENIUM;
 
 const browserOptions = new chrome.Options();
 browserOptions.addArguments('--headless'); // Prevents from opening a browser window
@@ -17,7 +17,7 @@ async function runSeleniumScript({ time: { hours, minutes, day }, direction, bus
 
     try {
         // Navigate to the URL
-        await driver.get(SELENIUM_URL);
+        await driver.get(SELENIUM);
         // Use the fixed size to make sure we have the elements in the viewport:
         await driver.manage().window().setSize(700, 778);
         await driver.sleep(1000);

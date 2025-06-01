@@ -1,6 +1,6 @@
 const { saveUserData, loadUserData } = require('../../utils/dbFuncs');
 const { BOT_COMMANDS } = require('../../dict/botTexts');
-const SELENIUM_URL = process.env.SELENIUM_URL;
+const SELENIUM = process.env.SELENIUM;
 
 class CommandHandler {
     constructor(bot) {
@@ -103,7 +103,7 @@ class CommandHandler {
                 msg.chat.id,
                 'You can find the official website for bus #304 (Apeldoorn - Zwolle) here: ' +
                     '\n' +
-                    `${SELENIUM_URL}`,
+                    `${SELENIUM}`,
                 {
                     reply_markup: {
                         inline_keyboard: [[{ text: 'New Search 🔍', callback_data: '_go' }]],
