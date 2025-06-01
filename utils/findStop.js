@@ -22,6 +22,21 @@ const levenshtein = (a, b) => {
     return matrix[a.length][b.length];
 };
 
+/**
+ * @typedef {Object} FindStopResponse
+ * @property {boolean} [isExact] - Whether the search matches user input exactly. Only present for matches
+ * @property {string | null} result - The matched bus stop name or null if no match found
+
+/**
+ * Searches for a bus stop by name, supporting exact, partial, and fuzzy matches
+ * @param {string} searchStop - bus stop to look for
+ * @returns {FindStopResponse}
+ * @example
+ * findStop("Station") // => { isExact: false, result: "Station Noord" }
+ * findStop("Station Noord") // => { isExact: true, result: "Station Noord" }
+ * findStop("xyz") // => { result: null }
+ */
+
 const findStop = searchStop => {
     if (!searchStop || searchStop.length < 4) {
         return { result: null };

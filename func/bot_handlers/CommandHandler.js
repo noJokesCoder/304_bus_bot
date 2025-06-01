@@ -2,7 +2,7 @@ const { saveUserData, loadUserData } = require('../../utils/dbFuncs');
 const { BOT_COMMANDS } = require('../../dict/botTexts');
 const SELENIUM_URL = process.env.SELENIUM_URL;
 
-class CommandHandlers {
+class CommandHandler {
     constructor(bot) {
         this.bot = bot;
     }
@@ -157,4 +157,4 @@ class CommandHandlers {
     }
 }
 
-module.exports = CommandHandlers;
+module.exports = CommandHandler;

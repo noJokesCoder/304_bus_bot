@@ -1,5 +1,27 @@
 const runSeleniumScript = require('./seleniumScript.js');
 
+/**
+ * @typedef {Object} SearchParams
+ * @property {string} stop - Bus stop name to search from
+ * @property {number} date - Unix timestamp in seconds
+ * @property {string} direction - Bus direction (either 'zwolle' or 'apeldoorn')
+ */
+
+/**
+ * Fetches bus departure times for a given stop, time and direction
+ * @param {SearchParams} params - Search parameters
+ * @returns {Promise<string>} Formatted message with bus times or error message
+ * @example
+ * const result = await getSearchResults({
+ *   stop: "Station Noord",
+ *   date: 1684847400, // May 23, 2023 14:30:00 UTC
+ *   direction: "zwolle"
+ * });
+ * // => "Buses departing from *Station Noord* at 14:30 or later:
+ * //     *Departing soon:* [ 14:45 | 15:00 ]
+ * //     *Departing later:* [ 15:15 | 15:30 ]"
+ */
+
 const getSearchResults = async ({ stop: busStop, date, direction }) => {
     const hours = new Date(date * 1000).getHours();
     const minutes = new Date(date * 1000).getMinutes();

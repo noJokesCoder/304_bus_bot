@@ -1,7 +1,7 @@
 const Bot = require('node-telegram-bot-api');
 const QueryHandler = require('./bot_handlers/QueryHandler');
 const MessageHandler = require('./bot_handlers/MessageHandler');
-const CommandHandlers = require('./bot_handlers/CommandHandler');
+const CommandHandler = require('./bot_handlers/CommandHandler');
 
 class TelegramBot {
     constructor({ token, isDevelopment, url }) {
@@ -9,7 +9,7 @@ class TelegramBot {
         this.webhookUrl = url ? `${url}/bot` : '';
 
         // Initialize handlers
-        this.commandHandlers = new CommandHandlers(this.bot);
+        this.commandHandler = new CommandHandler(this.bot);
         this.queryHandler = new QueryHandler(this.bot);
         this.messageHandler = new MessageHandler(this.bot);
 
@@ -36,7 +36,7 @@ class TelegramBot {
     }
 
     setEventHandlers() {
-        this.commandHandlers.initialize();
+        this.commandHandler.initialize();
         this.queryHandler.initialize();
         this.messageHandler.initialize();
     }
