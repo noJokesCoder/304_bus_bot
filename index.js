@@ -1,13 +1,13 @@
 const express = require('express');
-const TelegramBot = require('./304_bot');
+const TelegramBot = require('./func/304_bot');
 
 const TOKEN = process.env.TOKEN;
-const BOT_ENDPOINT = process.env.BOT_ENDPOINT;
+const URL = process.env.URL;
 const isDevelopment = process.env.NODE_ENV === 'development';
 const PORT = parseInt(process.env.PORT || '3000', 10);
 
 const app = express();
-const bot = new TelegramBot({ token: TOKEN, isDevelopment, url: BOT_ENDPOINT }).getBot();
+const bot = new TelegramBot({ token: TOKEN, isDevelopment, url: URL }).getBot();
 
 app.use(express.json());
 

@@ -48,7 +48,7 @@ class MessageHandler {
         const { result, isExact } = findStop(text);
 
         if (!result) {
-            // TODO: temporary! remove or change later
+            // TODO: think on a better approach for unknown commands & queries
             await this.bot.sendMessage(chatId, `You said: ${text}. I dont know such a command`);
         } else {
             await this.bot.sendMessage(

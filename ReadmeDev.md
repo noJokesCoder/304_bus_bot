@@ -44,5 +44,5 @@ bot.on('message', msg => {}); // handle message
 **Run the command to set up a webhook:**
 
 ```bash
-curl -F "url={APP_URL}/bot" https://api.telegram.org/{TOKEN}/setWebhook
+curl -F "url={APP_URL}/bot" https://api.telegram.org/bot{TOKEN}/setWebhook
 ```

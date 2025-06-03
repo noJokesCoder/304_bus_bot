@@ -1,17 +1,17 @@
 {
     "dependencies": {
-        "@netlify/functions": "^3.1.7",
         "@types/express": "^5.0.1",
         "express": "^5.1.0",
         "node-telegram-bot-api": "^0.66.0",
-        "selenium-webdriver": "^4.31.0",
-        "serverless-http": "^3.2.0"
+        "selenium-webdriver": "^4.31.0"
     },
     "scripts": {
-        "build": "echo building project",
+        "build": "npm install",
         "run_selenium": "SELENIUM='https://reisinfo.rrreis.nl/nl/rrreis/lijnen/4304/dienstregeling/heen' node utils/seleniumScript.js",
-        "start": "node func/index.js",
-        "dev": "netlify dev --port 8888"
+        "start": "node --env-file=.env index.js"
+    },
+    "engines": {
+        "node": "22.16.0"
     },
     "devDependencies": {
         "@eslint/js": "^9.27.0",
