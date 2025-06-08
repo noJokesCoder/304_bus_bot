@@ -35,13 +35,12 @@ const getSearchResults = async ({ stop: busStop, date, direction }) => {
     const lookup = dateTimeParts.reduce(
         (acc, part) => {
             acc[part.type] =
-                part.type === 'weekday' ? part.value.toUpperCase() : Number(part.value);
+                part.type === 'weekday' ? WEEKDAYS[part.value.toUpperCase()] : Number(part.value);
             return acc;
         },
-        { weekday: '', hours: 0, minutes: 0 }
+        { weekday: 0, hour: 0, minute: 0 }
     );
-    const { weekday: day, hours, minutes } = lookup;
-
+    const { weekday: day, hour: hours, minute: minutes } = lookup;
     let outputMessage = '';
 
     // No buses in between: 01:00 and 04:00
