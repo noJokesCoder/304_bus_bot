@@ -1,4 +1,5 @@
 const runSeleniumScript = require('./seleniumScript.js');
+const { WEEKDAYS } = require('../dict/seleniumTexts.js');
 
 /**
  * @typedef {Object} SearchParams
@@ -23,9 +24,23 @@ const runSeleniumScript = require('./seleniumScript.js');
  */
 
 const getSearchResults = async ({ stop: busStop, date, direction }) => {
-    const hours = new Date(date * 1000).getHours();
-    const minutes = new Date(date * 1000).getMinutes();
-    const day = new Date(date * 1000).getDay();
+    // get time & day specific to the location
+    const dateTimeParts = new Intl.DateTimeFormat('en-GB', {
+        weekday: 'long',
+        hour: 'numeric',
+        minute: 'numeric',
+        timeZone: 'Europe/Amsterdam',
+    }).formatToParts(date * 1000);
+
+    const lookup = dateTimeParts.reduce(
+        (acc, part) => {
+            acc[part.type] =
+                part.type === 'weekday' ? part.value.toUpperCase() : Number(part.value);
+            return acc;
+        },
+        { weekday: '', hours: 0, minutes: 0 }
+    );
+    const { weekday: day, hours, minutes } = lookup;
 
     let outputMessage = '';
 
