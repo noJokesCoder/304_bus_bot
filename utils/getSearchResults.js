@@ -1,11 +1,13 @@
 const runSeleniumScript = require('./seleniumScript.js');
 const { WEEKDAYS } = require('../dict/seleniumTexts.js');
+const i18n = require('../i18n');
 
 /**
  * @typedef {Object} SearchParams
  * @property {string} stop - Bus stop name to search from
  * @property {number} date - Unix timestamp in seconds
- * @property {string} direction - Bus direction (either 'zwolle' or 'apeldoorn')
+ * @property {string} direction - Bus direction 'zwolle' | 'apeldoorn'
+ * @property {string} lang - supported locales: en | nl | uk
  */
 
 /**
@@ -23,7 +25,9 @@ const { WEEKDAYS } = require('../dict/seleniumTexts.js');
  * //     *Departing later:* [ 15:15 | 15:30 ]"
  */
 
-const getSearchResults = async ({ stop: busStop, date, direction }) => {
+const getSearchResults = async ({ stop: busStop, date, direction, lang }) => {
+    i18n.setLocale(lang || 'en');
+
     // get time & day specific to the location
     const dateTimeParts = new Intl.DateTimeFormat('en-GB', {
         weekday: 'long',
@@ -45,10 +49,7 @@ const getSearchResults = async ({ stop: busStop, date, direction }) => {
 
     // No buses in between: 01:00 and 04:00
     if (hours >= 1 && hours < 5) {
-        outputMessage =
-            'Now is too late for buses.' +
-            'The Bot looks for buses at current and next hour,' +
-            'e.g. if it is 7:00 AM the Bot would provide results for buses at 7 AM and 8 AM.';
+        outputMessage = i18n.__('no_buses_between');
 
         return outputMessage;
     }
@@ -57,14 +58,25 @@ const getSearchResults = async ({ stop: busStop, date, direction }) => {
 
     outputMessage =
         results.busesForCurrentHour.length || results.busesForNextHour.length
-            ? `Buses departing from *${busStop}* at ${hours}:${minutes} or later:\n\n` +
+            ? i18n.__('buses_departing_from', {
+                  stop: busStop,
+                  hours: `${hours}`,
+                  minutes: `${minutes}`,
+              }) +
+              '\n\n' +
               (results.busesForCurrentHour.length
-                  ? `*Departing soon:* \[ ${results.busesForCurrentHour.join(' \| ')} \] \n`
+                  ? i18n.__('departing_soon', { buses: results.busesForCurrentHour.join(' | ') }) +
+                    '\n'
                   : '') +
               (results.busesForNextHour.length
-                  ? `*Departing later:* \[ ${results.busesForNextHour.join(' \| ')} \] \n`
+                  ? i18n.__('departing_later', { buses: results.busesForNextHour.join(' | ') }) +
+                    '\n'
                   : '')
-            : `No buses departing from *${busStop}* at ${hours}:${minutes}.\n\n`;
+            : i18n.__('no_buses_departing', {
+                  stop: busStop,
+                  hours: `${hours}`,
+                  minutes: `${minutes}`,
+              }) + '\n\n';
 
     return outputMessage;
 };
