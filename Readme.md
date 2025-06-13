@@ -7,8 +7,6 @@
 
 A Telegram bot that helps users quickly find departure times for bus #304 running between Zwolle and Apeldoorn (Netherlands). The bot fetches real-time data from the official RRReis website using Selenium automation.
 
-A Telegram bot that helps users quickly find departure times for bus #304 running between Zwolle and Apeldoorn (Netherlands). The bot fetches real-time data from the official RRReis website using Selenium automation.
-
 ## Features
 
 - Real-time bus departure times
