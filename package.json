@@ -2,6 +2,7 @@
     "dependencies": {
         "@types/express": "^5.0.1",
         "express": "^5.1.0",
+        "i18n": "^0.15.1",
         "node-telegram-bot-api": "^0.66.0",
         "selenium-webdriver": "^4.31.0"
     },
