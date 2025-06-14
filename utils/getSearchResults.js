@@ -59,9 +59,10 @@ const getSearchResults = async ({ stop: busStop, date, direction, lang }) => {
     outputMessage =
         results.busesForCurrentHour.length || results.busesForNextHour.length
             ? i18n.__('buses_departing_from', {
-                  stop: busStop,
+                  // i18n can't handle / properly, replace it
+                  stop: /\//.test(busStop) ? busStop.replace('/', ' - ') : busStop,
                   hours: `${hours}`,
-                  minutes: `${minutes}`,
+                  minutes: minutes <= 9 ? `0${minutes}` : `${minutes}`,
               }) +
               '\n\n' +
               (results.busesForCurrentHour.length

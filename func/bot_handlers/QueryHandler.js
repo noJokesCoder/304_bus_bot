@@ -2,6 +2,7 @@ const { loadUserData, saveUserData } = require('../../utils/dbFuncs');
 const { BOT_QUERIES } = require('../../dict/botTexts');
 const { getAllStopsBtnList, getFavoritesBtnList } = require('../../utils/favorites');
 const { getSearchResults } = require('../../utils/getSearchResults');
+const i18n = require('i18n');
 
 /** @typedef {import('node-telegram-bot-api')} TelegramBot */
 
@@ -46,7 +47,7 @@ class QueryHandler {
                 await this.handleGuess(query);
                 break;
             default:
-                await this.bot.sendMessage(query.message.chat.id, 'Sorry, this command is unknown');
+                await this.bot.sendMessage(query.message.chat.id, i18n.__('query_unknown'));
                 break;
         }
     }
@@ -64,17 +65,13 @@ class QueryHandler {
         if (data === BOT_QUERIES.ADD_FAVORITES) {
             const btnList = getAllStopsBtnList();
 
-            await this.bot.sendMessage(
-                chatId,
-                'Choose from the list, and I will remember it for you, so next time you take a bus you can get it faster',
-                {
-                    reply_markup: {
-                        inline_keyboard: btnList,
-                        resize_keyboard: true,
-                        one_time_keyboard: true,
-                    },
-                }
-            );
+            await this.bot.sendMessage(chatId, i18n.__('query_add_favorites'), {
+                reply_markup: {
+                    inline_keyboard: btnList,
+                    resize_keyboard: true,
+                    one_time_keyboard: true,
+                },
+            });
         }
         // show list for deleting:
         if (data === BOT_QUERIES.DELETE_FAVORITES) {
@@ -82,7 +79,7 @@ class QueryHandler {
 
             const favoriteBtns = getFavoritesBtnList(favorite_stops, true);
 
-            await this.bot.sendMessage(chatId, 'Choose the stops to delete from your favorites:', {
+            await this.bot.sendMessage(chatId, i18n.__('query_delete_from_favorites'), {
                 reply_markup: { inline_keyboard: favoriteBtns },
             });
         }
@@ -98,11 +95,13 @@ class QueryHandler {
             });
             await this.bot.sendMessage(
                 chatId,
-                `Great! I will remember *${selectedStop}* as your favorite bus stop. Now you may select more stops or start searching`,
+                i18n.__('query_save_to_favorites', { selectedStop }),
                 {
                     parse_mode: 'Markdown',
                     reply_markup: {
-                        inline_keyboard: [[{ text: 'Start search', callback_data: '_go' }]],
+                        inline_keyboard: [
+                            [{ text: i18n.__('btn_start_search'), callback_data: '_go' }],
+                        ],
                     },
                 }
             );
@@ -118,20 +117,28 @@ class QueryHandler {
                 favorite_stops: favorite_stops.filter(stop => stop !== selectedStop),
             });
 
-            await this.bot.sendMessage(chatId, `*${selectedStop}* was deleted from favorites`, {
-                parse_mode: 'Markdown',
-            });
+            await this.bot.sendMessage(
+                chatId,
+                i18n.__('query_confirm_delete_from_favorites', { selectedStop }),
+                { parse_mode: 'Markdown' }
+            );
         }
         // start search from favorites:
         if (/^#[^#]+#$/.test(data)) {
             const busStop = data.replace(/\#/g, '');
             const { direction } = await loadUserData(userId);
-            const searchResult = await getSearchResults({ stop: busStop, date, direction });
+            //
+            const searchResult = await getSearchResults({
+                stop: busStop,
+                date,
+                direction,
+                lang: 'uk',
+            });
 
             await this.bot.sendMessage(chatId, searchResult, {
                 parse_mode: 'Markdown',
                 reply_markup: {
-                    keyboard: [[{ text: 'Done' }]],
+                    keyboard: [[{ text: i18n.__('btn_done') }]],
                     remove_keyboard: true,
                     resize_keyboard: true,
                     one_time_keyboard: true,
@@ -154,7 +161,9 @@ class QueryHandler {
         };
 
         await this.bot.sendMessage(chatId, replyText[data], {
-            reply_markup: { inline_keyboard: [[{ text: 'New Search 🔍', callback_data: '_go' }]] },
+            reply_markup: {
+                inline_keyboard: [[{ text: i18n.__('btn_new_search'), callback_data: '_go' }]],
+            },
         });
         await saveUserData(userId, { language_code: data.replace('_', '') });
     }
@@ -173,40 +182,31 @@ class QueryHandler {
         if (favorite_stops.length) {
             btnStops = getFavoritesBtnList(favorite_stops);
         }
-        await this.bot.sendMessage(
-            chatId,
-            'Ok, now type in the bus stop where you *depart from*:',
-            {
-                parse_mode: 'Markdown',
-                ...(btnStops && { reply_markup: { inline_keyboard: btnStops } }),
-            }
-        );
+        await this.bot.sendMessage(chatId, i18n.__('query_set_depart_from'), {
+            parse_mode: 'Markdown',
+            ...(btnStops && { reply_markup: { inline_keyboard: btnStops } }),
+        });
 
         await saveUserData(userId, { direction: data.replace('_', '') });
     }
 
     async handleGo({ message }) {
-        await this.bot.sendMessage(
-            message.chat.id,
-            'Choose the bus direction. Going towards Zwolle or Apeldoorn',
-            {
-                reply_markup: {
-                    inline_keyboard: [
-                        [
-                            { text: 'Zwolle', callback_data: '_zwolle' },
-                            { text: 'Apeldoorn', callback_data: '_apeldoorn' },
-                        ],
+        await this.bot.sendMessage(message.chat.id, i18n.__('query_go'), {
+            reply_markup: {
+                inline_keyboard: [
+                    [
+                        { text: 'Zwolle', callback_data: '_zwolle' },
+                        { text: 'Apeldoorn', callback_data: '_apeldoorn' },
                     ],
-                },
-            }
-        );
+                ],
+            },
+        });
     }
     async handleCancel({ message }) {
-        await this.bot.sendMessage(
-            message.chat.id,
-            'Okay, bye 👋' + '\n' + 'If you change your mind - open menu and hit /start command 😉',
-            { parse_mode: 'Markdown' }
-        );
+        await Promise.all([
+            this.bot.sendMessage(message.chat.id, '👌'),
+            this.bot.sendMessage(message.chat.id, i18n.__('query_cancel')),
+        ]);
     }
     async handleGuess({
         from: { id: userId },
@@ -220,15 +220,18 @@ class QueryHandler {
         if (data === BOT_QUERIES.GUESS_CORRECT) {
             // get text surrounded by *
             const stop = text.match(/(?<=\*)(.*?)(?=\*)/)[0].trim();
-            await this.bot.sendMessage(chatId, '👌. Start searching for the bus from your stop');
+            await Promise.all([
+                this.bot.sendMessage(chatId, '👌'),
+                this.bot.sendMessage(chatId, i18n.__('query_guess_correct')),
+            ]);
 
             const { direction } = await loadUserData(userId);
-            const searchResult = await getSearchResults({ stop, date, direction });
+            const searchResult = await getSearchResults({ stop, date, direction, lang: 'uk' });
 
             await this.bot.sendMessage(chatId, searchResult, {
                 parse_mode: 'Markdown',
                 reply_markup: {
-                    keyboard: [[{ text: 'Done' }]],
+                    keyboard: [[{ text: i18n.__('btn_done') }]],
                     remove_keyboard: true,
                     resize_keyboard: true,
                     one_time_keyboard: true,
@@ -236,7 +239,7 @@ class QueryHandler {
             });
         }
         if (data === BOT_QUERIES.GUESS_INCORRECT) {
-            await this.bot.sendMessage(chatId, 'Sorry. Try typing the bus stop again');
+            await this.bot.sendMessage(chatId, i18n.__('query_giess_incorrect'));
         }
     }
 }
