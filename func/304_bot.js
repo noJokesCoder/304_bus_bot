@@ -26,13 +26,42 @@ class TelegramBot {
 
     setCommands() {
         // Menu commands:
-        this.bot.setMyCommands([
-            { command: '/start', description: 'Search for a bus from your bus-stop' },
-            { command: '/about', description: 'Get info about this bot' },
-            { command: '/lang', description: 'Set the language for bots replies' },
-            { command: '/favorites', description: 'Set favorite stops for quick search' },
-            { command: '/link', description: 'Get the link for an official #304 bus website' },
-        ]);
+        this.bot.setMyCommands(
+            [
+                { command: '/start', description: 'Search for a bus from your bus-stop' },
+                { command: '/about', description: 'Get info about this bot' },
+                { command: '/lang', description: 'Set the language for bots replies' },
+                { command: '/favorites', description: 'Set favorite stops for quick search' },
+                { command: '/link', description: 'Get the link for an official #304 bus website' },
+            ],
+            { language_code: 'en' }
+        );
+        this.bot.setMyCommands(
+            [
+                { command: '/start', description: 'Пошук автобуса з вашої зупинки' },
+                { command: '/about', description: 'Інформація про цього бота' },
+                { command: '/lang', description: 'Встановити мову відповідей бота' },
+                { command: '/favorites', description: 'Обрати зупинки для швидкого пошуку' },
+                {
+                    command: '/link',
+                    description: 'Отримати посилання на офіційний сайт автобуса №304',
+                },
+            ],
+            { language_code: 'uk' }
+        );
+        this.bot.setMyCommands(
+            [
+                { command: '/start', description: 'Zoek een bus vanaf jouw bushalte' },
+                { command: '/about', description: 'Informatie over deze bot' },
+                { command: '/lang', description: 'Stel de taal in voor botantwoorden' },
+                {
+                    command: '/favorites',
+                    description: 'Stel favoriete haltes in voor snelle toegang',
+                },
+                { command: '/link', description: 'Link naar de officiële #304 buswebsite' },
+            ],
+            { language_code: 'nl' }
+        );
     }
 
     setEventHandlers() {

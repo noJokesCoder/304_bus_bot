@@ -1,5 +1,7 @@
 const { BOT_COMMANDS } = require('../../dict/botTexts');
 const findStop = require('../../utils/findStop');
+const { loadUserData } = require('../../utils/dbFuncs');
+const i18n = require('i18n');
 
 /** @typedef {import('node-telegram-bot-api')} TelegramBot */
 
@@ -12,11 +14,13 @@ class MessageHandler {
 
     initialize() {
         this.bot.on('message', async msg => {
+            const { language_code } = await loadUserData(msg.from.id);
+            i18n.setLocale(language_code || 'en');
             // skip handling menu commands:
             if (Object.values(BOT_COMMANDS).includes(msg.text)) {
                 return;
             }
-            if (/^Done$/.test(msg.text)) {
+            if (['Done', 'Готово', 'Klaar'].includes(msg.text)) {
                 await this.handleDone(msg);
             } else {
                 await this.handleRest(msg);
@@ -29,16 +33,11 @@ class MessageHandler {
             from: { first_name = 'buddy' },
             chat: { id: chatId },
         } = msg;
-        await this.bot.sendMessage(
-            chatId,
-            `Great! I hope I was helpful, ${first_name}!` +
-                ' If you need to search for another bus stop, just hit New Search button.',
-            {
-                reply_markup: {
-                    inline_keyboard: [[{ text: 'New Search 🔍', callback_data: '_go' }]],
-                },
-            }
-        );
+        await this.bot.sendMessage(chatId, i18n.__('msg_done', { first_name }), {
+            reply_markup: {
+                inline_keyboard: [[{ text: i18n.__('btn_new_search'), callback_data: '_go' }]],
+            },
+        });
     }
     async handleRest(msg) {
         const {
@@ -48,29 +47,28 @@ class MessageHandler {
         const { result, isExact } = findStop(text);
 
         if (!result) {
-            // TODO: think on a better approach for unknown commands & queries
-            await this.bot.sendMessage(chatId, `You said: ${text}. I dont know such a command`);
+            await this.bot.sendMessage(chatId, i18n.__('query_unknown'));
         } else {
-            await this.bot.sendMessage(
-                chatId,
-                isExact
-                    ? '👌. Start searching for the bus from your stop'
-                    : `Not sure. Did you mean:  *${result}*?`,
-                {
-                    ...(isExact
-                        ? {}
-                        : {
-                              reply_markup: {
-                                  inline_keyboard: [
-                                      [
-                                          { text: '✅ Yes!', callback_data: '_guess_correct' },
-                                          { text: '❌ Nope', callback_data: '_guess_incorrect' },
-                                      ],
-                                  ],
-                              },
-                          }),
-                }
-            );
+            let msgOption = {};
+            let msgText = '';
+
+            if (isExact) {
+                msgText = i18n.__('query_guess_correct');
+            } else {
+                msgText = `${i18n.__('msg_not_sure')} *${result}*`;
+                msgOption = {
+                    reply_markup: {
+                        inline_keyboard: [
+                            [
+                                { text: i18n.__('btn_yes'), callback_data: '_guess_correct' },
+                                { text: i18n.__('btn_no'), callback_data: '_guess_incorrect' },
+                            ],
+                        ],
+                    },
+                };
+            }
+
+            await this.bot.sendMessage(chatId, msgText, msgOption);
         }
     }
 }
