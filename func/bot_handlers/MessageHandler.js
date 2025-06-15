@@ -1,5 +1,6 @@
 const { BOT_COMMANDS } = require('../../dict/botTexts');
 const findStop = require('../../utils/findStop');
+const { loadUserData } = require('../../utils/dbFuncs');
 const i18n = require('i18n');
 
 /** @typedef {import('node-telegram-bot-api')} TelegramBot */
@@ -13,6 +14,8 @@ class MessageHandler {
 
     initialize() {
         this.bot.on('message', async msg => {
+            const { language_code } = await loadUserData(msg.from.id);
+            i18n.setLocale(language_code || 'en');
             // skip handling menu commands:
             if (Object.values(BOT_COMMANDS).includes(msg.text)) {
                 return;
@@ -30,7 +33,7 @@ class MessageHandler {
             from: { first_name = 'buddy' },
             chat: { id: chatId },
         } = msg;
-        await this.bot.sendMessage(chatId, i18n.__('msg_done'), {
+        await this.bot.sendMessage(chatId, i18n.__('msg_done', { first_name }), {
             reply_markup: {
                 inline_keyboard: [[{ text: i18n.__('btn_new_search'), callback_data: '_go' }]],
             },

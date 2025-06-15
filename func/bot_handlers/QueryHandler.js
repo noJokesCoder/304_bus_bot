@@ -2,6 +2,7 @@ const { loadUserData, saveUserData } = require('../../utils/dbFuncs');
 const { BOT_QUERIES } = require('../../dict/botTexts');
 const { getAllStopsBtnList, getFavoritesBtnList } = require('../../utils/favorites');
 const { getSearchResults } = require('../../utils/getSearchResults');
+const { normalizeBusStop } = require('../../utils/normalizeBusStop');
 const i18n = require('i18n');
 
 /** @typedef {import('node-telegram-bot-api')} TelegramBot */
@@ -20,11 +21,15 @@ class QueryHandler {
     }
 
     async handleQueries(query) {
+        const { language_code } = await loadUserData(query.from.id);
+        i18n.setLocale(language_code || query.from.language_code || 'en');
+
         switch (query.data) {
             case BOT_QUERIES.ADD_FAVORITES:
             case BOT_QUERIES.DELETE_FAVORITES:
-            case String(query.data.match(/^#[^#]+#$/)):
+            case String(query.data.match(/^#{2}.+#{2}$/)):
             case String(query.data.match(/^#!.+!#$/)):
+            case String(query.data.match(/^\+[^+]+\+$/)):
                 await this.handleFavorites(query);
                 break;
             case BOT_QUERIES.LANG_EN:
@@ -85,7 +90,7 @@ class QueryHandler {
         }
         // save to favorites:
         if (/^\+[^+]+\+$/.test(data)) {
-            const selectedStop = data.replace(/#/g, '');
+            const selectedStop = data.replace(/\+/g, '');
 
             const { favorite_stops = [] } = await loadUserData(userId);
 
@@ -95,7 +100,9 @@ class QueryHandler {
             });
             await this.bot.sendMessage(
                 chatId,
-                i18n.__('query_save_to_favorites', { selectedStop }),
+                i18n.__('query_save_to_favorites', {
+                    selectedStop: normalizeBusStop(selectedStop),
+                }),
                 {
                     parse_mode: 'Markdown',
                     reply_markup: {
@@ -119,21 +126,21 @@ class QueryHandler {
 
             await this.bot.sendMessage(
                 chatId,
-                i18n.__('query_confirm_delete_from_favorites', { selectedStop }),
+                i18n.__('query_confirm_delete_from_favorites', {
+                    selectedStop: normalizeBusStop(selectedStop),
+                }),
                 { parse_mode: 'Markdown' }
             );
         }
         // start search from favorites:
-        if (/^#[^#]+#$/.test(data)) {
+        if (/^#{2}.+#{2}$/.test(data)) {
             const busStop = data.replace(/\#/g, '');
             const { direction } = await loadUserData(userId);
-            //
-            const searchResult = await getSearchResults({
-                stop: busStop,
-                date,
-                direction,
-                lang: 'uk',
-            });
+
+            const [_, searchResult] = await Promise.all([
+                this.bot.sendMessage(chatId, '👌'),
+                getSearchResults({ stop: busStop, date, direction, lang: 'uk' }),
+            ]);
 
             await this.bot.sendMessage(chatId, searchResult, {
                 parse_mode: 'Markdown',

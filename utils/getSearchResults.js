@@ -1,7 +1,7 @@
 const runSeleniumScript = require('./seleniumScript.js');
 const { WEEKDAYS } = require('../dict/seleniumTexts.js');
 const i18n = require('../i18n');
-
+const { normalizeBusStop } = require('./normalizeBusStop.js');
 /**
  * @typedef {Object} SearchParams
  * @property {string} stop - Bus stop name to search from
@@ -60,7 +60,7 @@ const getSearchResults = async ({ stop: busStop, date, direction, lang }) => {
         results.busesForCurrentHour.length || results.busesForNextHour.length
             ? i18n.__('buses_departing_from', {
                   // i18n can't handle / properly, replace it
-                  stop: /\//.test(busStop) ? busStop.replace('/', ' - ') : busStop,
+                  stop: normalizeBusStop(busStop),
                   hours: `${hours}`,
                   minutes: minutes <= 9 ? `0${minutes}` : `${minutes}`,
               }) +
@@ -74,7 +74,7 @@ const getSearchResults = async ({ stop: busStop, date, direction, lang }) => {
                     '\n'
                   : '')
             : i18n.__('no_buses_departing', {
-                  stop: busStop,
+                  stop: normalizeBusStop(busStop),
                   hours: `${hours}`,
                   minutes: `${minutes}`,
               }) + '\n\n';
