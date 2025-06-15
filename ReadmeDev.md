@@ -46,3 +46,9 @@ bot.on('message', msg => {}); // handle message
 ```bash
 curl -F "url={APP_URL}/bot" https://api.telegram.org/bot{TOKEN}/setWebhook
 ```
+
+### Note:
+
+```
+⏰ To keep the bot alive a cron_job by cron.org is set up.
+```

@@ -4,6 +4,8 @@
 ![Node.js](https://img.shields.io/badge/Node.js-43853D?style=flat&logo=node.js&logoColor=white)
 ![Express.js](https://img.shields.io/badge/Express.js-404D59?style=flat&logo=express&logoColor=61DAFB)
 ![Telegram](https://img.shields.io/badge/Telegram_Bot_API-26A5E4?style=flat&logo=telegram&logoColor=white)
+![i18n](https://img.shields.io/badge/i18n-localization-blueviolet?style=flat&logo=translate)
+![Cron](https://img.shields.io/badge/Cron-Scheduled%20Task-9cf?style=flat&logo=cron)
 
 A Telegram bot that helps users quickly find departure times for bus #304 running between Zwolle and Apeldoorn (Netherlands). The bot fetches real-time data from the official RRReis website using Selenium automation.
 
