@@ -1,10 +1,11 @@
 /**
+ * @description
  * Normalizes a bus stop name by replacing a single forward slash ('/') with ' - '.
  *
- * Example:
+ * @example:
  *   fixBusStop('Zwolle/Apeldoorn') // => 'Zwolle - Apeldoorn'
  *   fixBusStop('Zwolle')           // => 'Zwolle'
- *
+ * @function
  * @param {string} busStop
  * @returns {string}
  */
