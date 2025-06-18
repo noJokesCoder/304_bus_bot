@@ -21,6 +21,10 @@ if (isDevelopment) {
         bot.processUpdate(req.body);
         res.sendStatus(200);
     });
+    // keep the server alive:
+    app.get('/cronjob', (_, res) => {
+        res.sendStatus(200);
+    });
 
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
