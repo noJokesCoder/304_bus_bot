@@ -2,6 +2,7 @@ const { BOT_COMMANDS } = require('../../dict/botTexts');
 const findStop = require('../../utils/findStop');
 const { loadUserData } = require('../../utils/dbFuncs');
 const i18n = require('i18n');
+const { getSearchResults } = require('../../utils/getSearchResults');
 
 /** @typedef {import('node-telegram-bot-api')} TelegramBot */
 
@@ -14,8 +15,8 @@ class MessageHandler {
 
     initialize() {
         this.bot.on('message', async msg => {
-            const { language_code } = await loadUserData(msg.from.id);
-            i18n.setLocale(language_code || 'en');
+            const userData = await loadUserData(msg.from.id);
+            i18n.setLocale(userData?.language_code || 'en');
             // skip handling menu commands:
             if (Object.values(BOT_COMMANDS).includes(msg.text)) {
                 return;
@@ -23,7 +24,7 @@ class MessageHandler {
             if (['Done', 'Готово', 'Klaar'].includes(msg.text)) {
                 await this.handleDone(msg);
             } else {
-                await this.handleRest(msg);
+                await this.handleRest(msg, userData);
             }
         });
     }
@@ -39,24 +40,37 @@ class MessageHandler {
             },
         });
     }
-    async handleRest(msg) {
+    async handleRest(msg, userData) {
         const {
             text,
             chat: { id: chatId },
+            date,
         } = msg;
+        const { direction, language_code = 'en' } = userData;
+
         const { result, isExact } = findStop(text);
+
+        console.log(msg);
 
         if (!result) {
             await this.bot.sendMessage(chatId, i18n.__('query_unknown'));
         } else {
-            let msgOption = {};
-            let msgText = '';
-
             if (isExact) {
-                msgText = i18n.__('query_guess_correct');
+                const [_, searchResult] = await Promise.all([
+                    this.bot.sendMessage(chatId, i18n.__('query_guess_correct')),
+                    getSearchResults({ date, direction, stop: text, lang: language_code }),
+                ]);
+                await this.bot.sendMessage(chatId, searchResult, {
+                    parse_mode: 'Markdown',
+                    reply_markup: {
+                        keyboard: [[{ text: i18n.__('btn_done') }]],
+                        remove_keyboard: true,
+                        resize_keyboard: true,
+                        one_time_keyboard: true,
+                    },
+                });
             } else {
-                msgText = `${i18n.__('msg_not_sure')} *${result}*`;
-                msgOption = {
+                await this.bot.sendMessage(chatId, `${i18n.__('msg_not_sure')} *${result}*`, {
                     reply_markup: {
                         inline_keyboard: [
                             [
@@ -65,10 +79,8 @@ class MessageHandler {
                             ],
                         ],
                     },
-                };
+                });
             }
-
-            await this.bot.sendMessage(chatId, msgText, msgOption);
         }
     }
 }
