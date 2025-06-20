@@ -17,6 +17,12 @@ if (isDevelopment) {
         console.log(process.env);
     });
 } else {
+    // keep the server alive:
+    app.get('/cronjob', (_, res) => {
+        console.log('Ping received!');
+        res.sendStatus(200);
+    });
+    // // webhook endpoint:
     app.post(`/bot`, (req, res) => {
         bot.processUpdate(req.body);
         res.sendStatus(200);
