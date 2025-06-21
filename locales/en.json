@@ -19,7 +19,7 @@
     "query_go": "Choose the bus direction. Going towards Zwolle or Apeldoorn",
     "query_cancel": "If you change your mind - open menu and hit /start command 😉",
     "query_guess_correct": "Start searching for the bus from your stop",
-    "query_giess_incorrect": "Sorry. Try typing the bus stop again",
+    "query_guess_incorrect": "Sorry. Try typing the bus stop again",
     "query_unknown": "Sorry, this command is unknown",
     "msg_done": "Great! I hope I was helpful, {{first_name}}! If you need to search for another bus stop, just hit New Search button.",
     "msg_not_sure": "Not sure. Did you mean that ?",

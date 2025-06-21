@@ -1,5 +1,6 @@
 const { loadUserData, saveUserData } = require('../../utils/dbFuncs');
 const { BOT_QUERIES } = require('../../dict/botTexts');
+const { DIRECTIONS } = require('../../dict/seleniumTexts');
 const { getAllStopsBtnList, getFavoritesBtnList } = require('../../utils/favorites');
 const { getSearchResults } = require('../../utils/getSearchResults');
 const { normalizeBusStop } = require('../../utils/normalizeBusStop');
@@ -21,8 +22,7 @@ class QueryHandler {
     }
 
     async handleQueries(query) {
-        const { language_code } = await loadUserData(query.from.id);
-        i18n.setLocale(language_code || query.from.language_code || 'en');
+        const userData = await loadUserData(query.from.id);
 
         switch (query.data) {
             case BOT_QUERIES.ADD_FAVORITES:
@@ -30,7 +30,7 @@ class QueryHandler {
             case String(query.data.match(/^#{2}.+#{2}$/)):
             case String(query.data.match(/^#!.+!#$/)):
             case String(query.data.match(/^\+[^+]+\+$/)):
-                await this.handleFavorites(query);
+                await this.handleFavorites(query, userData);
                 break;
             case BOT_QUERIES.LANG_EN:
             case BOT_QUERIES.LANG_NL:
@@ -39,75 +39,97 @@ class QueryHandler {
                 break;
             case BOT_QUERIES.APELDOORN:
             case BOT_QUERIES.ZWOLLE:
-                await this.handleDirection(query);
+                await this.handleDirection(query, userData);
                 break;
             case BOT_QUERIES.GO:
-                await this.handleGo(query);
+                await this.handleGo(query, userData);
                 break;
             case BOT_QUERIES.CANCEL:
-                await this.handleCancel(query);
+                await this.handleCancel(query, userData);
                 break;
             case BOT_QUERIES.GUESS_CORRECT:
             case BOT_QUERIES.GUESS_INCORRECT:
-                await this.handleGuess(query);
+                await this.handleGuess(query, userData);
                 break;
             default:
-                await this.bot.sendMessage(query.message.chat.id, i18n.__('query_unknown'));
+                await this.bot.sendMessage(
+                    query.message.chat.id,
+                    i18n.__({
+                        phrase: 'query_unknown',
+                        locale:
+                            userData?.language_code ||
+                            ['en', 'uk', 'nl'].includes(query.from.language_code)
+                                ? query.from.language_code
+                                : 'en',
+                    })
+                );
                 break;
         }
     }
 
-    async handleFavorites({
-        from: { id: userId },
-        data,
-        message: {
-            date,
-            chat: { id: chatId },
-        },
-        ...rest
-    }) {
+    async handleFavorites(query, userData) {
+        const {
+            from: { id: userId },
+            data,
+            message: {
+                date,
+                chat: { id: chatId },
+            },
+        } = query;
+        const { language_code = 'en', favorite_stops = [], direction } = userData;
+
         // show list for saving:
         if (data === BOT_QUERIES.ADD_FAVORITES) {
             const btnList = getAllStopsBtnList();
 
-            await this.bot.sendMessage(chatId, i18n.__('query_add_favorites'), {
-                reply_markup: {
-                    inline_keyboard: btnList,
-                    resize_keyboard: true,
-                    one_time_keyboard: true,
-                },
-            });
+            await this.bot.sendMessage(
+                chatId,
+                i18n.__({ phrase: 'query_add_favorites', locale: language_code }),
+                {
+                    reply_markup: {
+                        inline_keyboard: btnList,
+                        resize_keyboard: true,
+                        one_time_keyboard: true,
+                    },
+                }
+            );
         }
         // show list for deleting:
         if (data === BOT_QUERIES.DELETE_FAVORITES) {
-            const { favorite_stops } = await loadUserData(userId);
-
             const favoriteBtns = getFavoritesBtnList(favorite_stops, true);
 
-            await this.bot.sendMessage(chatId, i18n.__('query_delete_from_favorites'), {
-                reply_markup: { inline_keyboard: favoriteBtns },
-            });
+            await this.bot.sendMessage(
+                chatId,
+                i18n.__({ phrase: 'query_delete_from_favorites', locale: language_code }),
+                { reply_markup: { inline_keyboard: favoriteBtns } }
+            );
         }
         // save to favorites:
         if (/^\+[^+]+\+$/.test(data)) {
             const selectedStop = data.replace(/\+/g, '');
 
-            const { favorite_stops = [] } = await loadUserData(userId);
-
             await saveUserData(userId, {
-                // @ts-ignore
                 favorite_stops: Array.from(new Set([...favorite_stops, selectedStop])),
             });
             await this.bot.sendMessage(
                 chatId,
-                i18n.__('query_save_to_favorites', {
-                    selectedStop: normalizeBusStop(selectedStop),
-                }),
+                i18n.__(
+                    { phrase: 'query_save_to_favorites', locale: language_code },
+                    { selectedStop: normalizeBusStop(selectedStop) }
+                ),
                 {
                     parse_mode: 'Markdown',
                     reply_markup: {
                         inline_keyboard: [
-                            [{ text: i18n.__('btn_start_search'), callback_data: '_go' }],
+                            [
+                                {
+                                    text: i18n.__({
+                                        phrase: 'btn_start_search',
+                                        locale: language_code,
+                                    }),
+                                    callback_data: '_go',
+                                },
+                            ],
                         ],
                     },
                 }
@@ -117,35 +139,32 @@ class QueryHandler {
         if (/^#!.+!#$/.test(data)) {
             const selectedStop = data.replace(/^#!|!#$/g, '');
 
-            const { favorite_stops = [] } = await loadUserData(userId);
-
             await saveUserData(userId, {
-                // @ts-ignore
                 favorite_stops: favorite_stops.filter(stop => stop !== selectedStop),
             });
 
             await this.bot.sendMessage(
                 chatId,
-                i18n.__('query_confirm_delete_from_favorites', {
-                    selectedStop: normalizeBusStop(selectedStop),
-                }),
+                i18n.__(
+                    { phrase: 'query_confirm_delete_from_favorites', locale: language_code },
+                    { selectedStop: normalizeBusStop(selectedStop) }
+                ),
                 { parse_mode: 'Markdown' }
             );
         }
         // start search from favorites:
         if (/^#{2}.+#{2}$/.test(data)) {
             const busStop = data.replace(/\#/g, '');
-            const { direction } = await loadUserData(userId);
 
             const [_, searchResult] = await Promise.all([
                 this.bot.sendMessage(chatId, '👌'),
-                getSearchResults({ stop: busStop, date, direction, lang: 'uk' }),
+                getSearchResults({ stop: busStop, date, direction, lang: language_code }),
             ]);
 
             await this.bot.sendMessage(chatId, searchResult, {
                 parse_mode: 'Markdown',
                 reply_markup: {
-                    keyboard: [[{ text: i18n.__('btn_done') }]],
+                    keyboard: [[{ text: i18n.__({ phrase: 'btn_done', locale: language_code }) }]],
                     remove_keyboard: true,
                     resize_keyboard: true,
                     one_time_keyboard: true,
@@ -175,70 +194,100 @@ class QueryHandler {
         await saveUserData(userId, { language_code: data.replace('_', '') });
     }
 
-    async handleDirection({
-        from: { id: userId },
-        data,
-        message: {
-            chat: { id: chatId },
-        },
-    }) {
-        const { favorite_stops = [] } = await loadUserData(userId);
+    async handleDirection(query, userData) {
+        const {
+            from: { id: userId },
+            data,
+            message: {
+                chat: { id: chatId },
+            },
+        } = query;
+        const { language_code = 'en', favorite_stops = [] } = userData;
         let btnStops;
 
         // @ts-ignore
         if (favorite_stops.length) {
             btnStops = getFavoritesBtnList(favorite_stops);
         }
-        await this.bot.sendMessage(chatId, i18n.__('query_set_depart_from'), {
-            parse_mode: 'Markdown',
-            ...(btnStops && { reply_markup: { inline_keyboard: btnStops } }),
-        });
+        await this.bot.sendMessage(
+            chatId,
+            i18n.__({ phrase: 'query_set_depart_from', locale: language_code }),
+            {
+                parse_mode: 'Markdown',
+                ...(btnStops && { reply_markup: { inline_keyboard: btnStops } }),
+            }
+        );
 
         await saveUserData(userId, { direction: data.replace('_', '') });
     }
 
-    async handleGo({ message }) {
-        await this.bot.sendMessage(message.chat.id, i18n.__('query_go'), {
-            reply_markup: {
-                inline_keyboard: [
-                    [
-                        { text: 'Zwolle', callback_data: '_zwolle' },
-                        { text: 'Apeldoorn', callback_data: '_apeldoorn' },
+    async handleGo(query, userData) {
+        const { message } = query;
+        const { language_code = 'en' } = userData;
+
+        await this.bot.sendMessage(
+            message.chat.id,
+            i18n.__({ phrase: 'query_go', locale: language_code }),
+            {
+                reply_markup: {
+                    inline_keyboard: [
+                        [
+                            { text: DIRECTIONS.ZWOLLE.toUpperCase(), callback_data: '_zwolle' },
+                            {
+                                text: DIRECTIONS.APELDOORN.toUpperCase(),
+                                callback_data: '_apeldoorn',
+                            },
+                        ],
                     ],
-                ],
-            },
-        });
+                },
+            }
+        );
     }
-    async handleCancel({ message }) {
+    async handleCancel(query, userData) {
+        const { message } = query;
+        const { language_code = 'en' } = userData;
+
         await Promise.all([
             this.bot.sendMessage(message.chat.id, '👌'),
-            this.bot.sendMessage(message.chat.id, i18n.__('query_cancel')),
+            this.bot.sendMessage(
+                message.chat.id,
+                i18n.__({ phrase: 'query_cancel', locale: language_code })
+            ),
         ]);
     }
-    async handleGuess({
-        from: { id: userId },
-        data,
-        message: {
-            date,
-            text,
-            chat: { id: chatId },
-        },
-    }) {
+    async handleGuess(query, userData) {
+        const {
+            from: { id: userId },
+            data,
+            message: {
+                date,
+                text,
+                chat: { id: chatId },
+            },
+        } = query;
+        const { language_code = 'en', direction } = userData;
+
         if (data === BOT_QUERIES.GUESS_CORRECT) {
             // get text surrounded by *
             const stop = text.match(/(?<=\*)(.*?)(?=\*)/)[0].trim();
             await Promise.all([
                 this.bot.sendMessage(chatId, '👌'),
-                this.bot.sendMessage(chatId, i18n.__('query_guess_correct')),
+                this.bot.sendMessage(
+                    chatId,
+                    i18n.__({ phrase: 'query_guess_correct', locale: language_code })
+                ),
             ]);
-
-            const { direction } = await loadUserData(userId);
-            const searchResult = await getSearchResults({ stop, date, direction, lang: 'uk' });
+            const searchResult = await getSearchResults({
+                stop,
+                date,
+                direction,
+                lang: language_code,
+            });
 
             await this.bot.sendMessage(chatId, searchResult, {
                 parse_mode: 'Markdown',
                 reply_markup: {
-                    keyboard: [[{ text: i18n.__('btn_done') }]],
+                    keyboard: [[{ text: i18n.__({ phrase: 'btn_done', locale: language_code }) }]],
                     remove_keyboard: true,
                     resize_keyboard: true,
                     one_time_keyboard: true,
@@ -246,7 +295,10 @@ class QueryHandler {
             });
         }
         if (data === BOT_QUERIES.GUESS_INCORRECT) {
-            await this.bot.sendMessage(chatId, i18n.__('query_giess_incorrect'));
+            await this.bot.sendMessage(
+                chatId,
+                i18n.__({ phrase: 'query_guess_incorrect', locale: language_code })
+            );
         }
     }
 }

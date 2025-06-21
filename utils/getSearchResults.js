@@ -25,9 +25,7 @@ const { normalizeBusStop } = require('./normalizeBusStop.js');
  * //     *Departing later:* [ 15:15 | 15:30 ]"
  */
 
-const getSearchResults = async ({ stop: busStop, date, direction, lang }) => {
-    i18n.setLocale(lang || 'en');
-
+const getSearchResults = async ({ stop: busStop, date, direction, lang = 'en' }) => {
     // get time & day specific to the location
     const dateTimeParts = new Intl.DateTimeFormat('en-GB', {
         weekday: 'long',
@@ -49,7 +47,7 @@ const getSearchResults = async ({ stop: busStop, date, direction, lang }) => {
 
     // No buses in between: 01:00 and 04:00
     if (hours >= 1 && hours < 5) {
-        outputMessage = i18n.__('no_buses_between');
+        outputMessage = i18n.__({ phrase: 'no_buses_between', locale: lang });
 
         return outputMessage;
     }
@@ -58,26 +56,32 @@ const getSearchResults = async ({ stop: busStop, date, direction, lang }) => {
 
     outputMessage =
         results.busesForCurrentHour.length || results.busesForNextHour.length
-            ? i18n.__('buses_departing_from', {
-                  // i18n can't handle / properly, replace it
-                  stop: normalizeBusStop(busStop),
-                  hours: `${hours}`,
-                  minutes: minutes <= 9 ? `0${minutes}` : `${minutes}`,
-              }) +
+            ? i18n.__(
+                  { phrase: 'buses_departing_from', locale: lang },
+                  {
+                      // i18n can't handle / properly, replace it
+                      stop: normalizeBusStop(busStop),
+                      hours: `${hours}`,
+                      minutes: minutes <= 9 ? `0${minutes}` : `${minutes}`,
+                  }
+              ) +
               '\n\n' +
               (results.busesForCurrentHour.length
-                  ? i18n.__('departing_soon', { buses: results.busesForCurrentHour.join(' | ') }) +
-                    '\n'
+                  ? i18n.__(
+                        { phrase: 'departing_soon', locale: lang },
+                        { buses: results.busesForCurrentHour.join(' | ') }
+                    ) + '\n'
                   : '') +
               (results.busesForNextHour.length
-                  ? i18n.__('departing_later', { buses: results.busesForNextHour.join(' | ') }) +
-                    '\n'
+                  ? i18n.__(
+                        { phrase: 'departing_later', locale: lang },
+                        { buses: results.busesForNextHour.join(' | ') }
+                    ) + '\n'
                   : '')
-            : i18n.__('no_buses_departing', {
-                  stop: normalizeBusStop(busStop),
-                  hours: `${hours}`,
-                  minutes: `${minutes}`,
-              }) + '\n\n';
+            : i18n.__(
+                  { phrase: 'no_buses_departing', locale: lang },
+                  { stop: normalizeBusStop(busStop), hours: `${hours}`, minutes: `${minutes}` }
+              ) + '\n\n';
 
     return outputMessage;
 };
