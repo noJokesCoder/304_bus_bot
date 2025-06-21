@@ -29,19 +29,28 @@ class CommandHandler {
                 from: { id: userId, first_name = 'buddy', language_code },
             } = msg;
             const userLang = ['en', 'nl', 'uk'].includes(language_code) ? language_code : 'en';
-            i18n.setLocale(userLang);
 
-            await this.bot.sendMessage(chatId, i18n.__('command_start', { first_name }), {
-                reply_markup: {
-                    inline_keyboard: [
-                        [
-                            { text: i18n.__('btn_yes'), callback_data: '_go' },
-                            { text: i18n.__('btn_no'), callback_data: '_cancel' },
+            await this.bot.sendMessage(
+                chatId,
+                i18n.__({ phrase: 'command_start', locale: userLang }, { first_name }),
+                {
+                    reply_markup: {
+                        inline_keyboard: [
+                            [
+                                {
+                                    text: i18n.__({ phrase: 'btn_yes', locale: userLang }),
+                                    callback_data: '_go',
+                                },
+                                {
+                                    text: i18n.__({ phrase: 'btn_no', locale: userLang }),
+                                    callback_data: '_cancel',
+                                },
+                            ],
                         ],
-                    ],
-                },
-                reply_to_message_id: message_id,
-            });
+                    },
+                    reply_to_message_id: message_id,
+                }
+            );
 
             await saveUserData(userId, { first_name, language_code: userLang });
         });
@@ -50,15 +59,28 @@ class CommandHandler {
     handleAbout() {
         const regex = new RegExp(`^${BOT_COMMANDS.ABOUT}$`);
         this.bot.onText(regex, async msg => {
-            const { language_code } = await loadUserData(msg.from.id);
-            i18n.setLocale(language_code || 'en');
+            const { language_code = 'en' } = await loadUserData(msg.from.id);
 
-            await this.bot.sendMessage(msg.chat.id, i18n.__('command_about'), {
-                parse_mode: 'Markdown',
-                reply_markup: {
-                    inline_keyboard: [[{ text: i18n.__('btn_new_search'), callback_data: '_go' }]],
-                },
-            });
+            await this.bot.sendMessage(
+                msg.chat.id,
+                i18n.__({ phrase: 'command_about', locale: language_code }),
+                {
+                    parse_mode: 'Markdown',
+                    reply_markup: {
+                        inline_keyboard: [
+                            [
+                                {
+                                    text: i18n.__({
+                                        phrase: 'btn_new_search',
+                                        locale: language_code,
+                                    }),
+                                    callback_data: '_go',
+                                },
+                            ],
+                        ],
+                    },
+                }
+            );
         });
     }
 
@@ -91,31 +113,50 @@ class CommandHandler {
     handleLink() {
         const regex = new RegExp(`^${BOT_COMMANDS.LINK}$`);
         this.bot.onText(regex, async msg => {
-            const { language_code } = await loadUserData(msg.from.id);
-            i18n.setLocale(language_code || 'en');
+            const { language_code = 'en' } = await loadUserData(msg.from.id);
 
-            await this.bot.sendMessage(msg.chat.id, `${i18n.__('command_link')} ${SELENIUM}`, {
-                reply_markup: {
-                    inline_keyboard: [[{ text: i18n.__('btn_new_search'), callback_data: '_go' }]],
-                },
-            });
+            await this.bot.sendMessage(
+                msg.chat.id,
+                `${i18n.__({ phrase: 'command_link', locale: language_code })} ${SELENIUM}`,
+                {
+                    reply_markup: {
+                        inline_keyboard: [
+                            [
+                                {
+                                    text: i18n.__({
+                                        phrase: 'btn_new_search',
+                                        locale: language_code,
+                                    }),
+                                    callback_data: '_go',
+                                },
+                            ],
+                        ],
+                    },
+                }
+            );
         });
     }
 
     handleFavorites() {
         const regex = new RegExp(`^${BOT_COMMANDS.FAVORITES}$`);
         this.bot.onText(regex, async msg => {
-            const { language_code } = await loadUserData(msg.from.id);
-            i18n.setLocale(language_code || 'en');
+            const { language_code = 'en' } = await loadUserData(msg.from.id);
+
             const { favorite_stops } = await loadUserData(msg.from.id);
             const favoritesLen = favorite_stops ? favorite_stops.length : 0;
 
-            await this.bot.sendMessage(msg.chat.id, i18n.__('command_favorites'));
+            await this.bot.sendMessage(
+                msg.chat.id,
+                i18n.__({ phrase: 'command_favorites', locale: language_code })
+            );
 
             if (favoritesLen) {
                 await this.bot.sendMessage(
                     msg.chat.id,
-                    i18n.__('command_favorites_length', { length: `${favoritesLen}` })
+                    i18n.__(
+                        { phrase: 'command_favorites_length', locale: language_code },
+                        { length: `${favoritesLen}` }
+                    )
                 );
 
                 const messagePromises = favorite_stops.map((stop, indx) => {
@@ -134,14 +175,27 @@ class CommandHandler {
 
             const actionBtns = favoritesLen
                 ? [
-                      { text: i18n.__('btn_add_favorites'), callback_data: '_add_favorites' },
-                      { text: i18n.__('btn_delete_favorites'), callback_data: '_delete_favorites' },
+                      {
+                          text: i18n.__({ phrase: 'btn_add_favorites', locale: language_code }),
+                          callback_data: '_add_favorites',
+                      },
+                      {
+                          text: i18n.__({ phrase: 'btn_delete_favorites', locale: language_code }),
+                          callback_data: '_delete_favorites',
+                      },
                   ]
-                : [{ text: i18n.__('btn_add_favorites'), callback_data: '_add_favorites' }];
+                : [
+                      {
+                          text: i18n.__({ phrase: 'btn_add_favorites', locale: language_code }),
+                          callback_data: '_add_favorites',
+                      },
+                  ];
 
-            await this.bot.sendMessage(msg.chat.id, i18n.__('command_favorites_add_or_delete'), {
-                reply_markup: { inline_keyboard: [actionBtns] },
-            });
+            await this.bot.sendMessage(
+                msg.chat.id,
+                i18n.__({ phrase: 'command_favorites_add_or_delete', locale: language_code }),
+                { reply_markup: { inline_keyboard: [actionBtns] } }
+            );
         });
     }
 }
