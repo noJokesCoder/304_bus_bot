@@ -7,6 +7,12 @@ const SELENIUM = process.env.SELENIUM;
 const browserOptions = new chrome.Options();
 browserOptions.addArguments('--headless'); // Prevents from opening a browser window
 browserOptions.addArguments('--incognito');
+browserOptions.addArguments('--disable-gpu');
+browserOptions.addArguments('--no-sandbox');
+browserOptions.addArguments('--disable-dev-shm-usage');
+browserOptions.addArguments('--disable-extensions');
+browserOptions.addArguments('--disable-images');
+browserOptions.addArguments('--disable-logging');
 
 async function runSeleniumScript({ time: { hours, minutes, day }, direction, busStop }) {
     // Initialize the WebDriver
@@ -94,12 +100,14 @@ async function runSeleniumScript({ time: { hours, minutes, day }, direction, bus
 
         busesForCurrentHour = await Promise.all(
             timeCellsExactHour.map(async cell => {
-                const cellText = await cell.getText();
+                const cellText = (await cell.getText()).trim();
+                const match = cellText.match(/^(\d{2}):(\d{2})/);
 
-                if (cellText && cellText.trim().match(/^\d{2}:\d{2}/)) {
-                    const [_, cellMinutes] = cellText.split(':');
+                if (match) {
+                    const cellHour = parseInt(match[1]);
+                    const cellMinute = parseInt(match[2]);
 
-                    if (parseInt(cellMinutes) >= minutes) {
+                    if (cellHour === hours && cellMinute >= minutes) {
                         return cellText;
                     }
                 }
