@@ -7,7 +7,6 @@ const SELENIUM = process.env.SELENIUM;
 const browserOptions = new chrome.Options();
 browserOptions.addArguments('--headless'); // Prevents from opening a browser window
 browserOptions.addArguments('--incognito');
-browserOptions.addArguments('--disable-gpu');
 browserOptions.addArguments('--no-sandbox');
 browserOptions.addArguments('--disable-dev-shm-usage');
 browserOptions.addArguments('--disable-extensions');
