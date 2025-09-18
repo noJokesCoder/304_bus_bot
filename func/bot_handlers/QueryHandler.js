@@ -188,7 +188,17 @@ class QueryHandler {
 
         await this.bot.sendMessage(chatId, replyText[data], {
             reply_markup: {
-                inline_keyboard: [[{ text: i18n.__('btn_new_search'), callback_data: '_go' }]],
+                inline_keyboard: [
+                    [
+                        {
+                            text: i18n.__({
+                                phrase: 'btn_new_search',
+                                locale: data.replace('_', ''),
+                            }),
+                            callback_data: '_go',
+                        },
+                    ],
+                ],
             },
         });
         await saveUserData(userId, { language_code: data.replace('_', '') });
