@@ -1,6 +1,6 @@
 const { loadUserData, saveUserData } = require('../../utils/dbFuncs');
 const { BOT_QUERIES } = require('../../dict/botTexts');
-const { DIRECTIONS } = require('../../dict/seleniumTexts');
+const { DIRECTIONS } = require('../../dict/scrapingTexts');
 const { getAllStopsBtnList, getFavoritesBtnList } = require('../../utils/favorites');
 const { getSearchResults } = require('../../utils/getSearchResults');
 const { normalizeBusStop } = require('../../utils/normalizeBusStop');
@@ -154,7 +154,7 @@ class QueryHandler {
         }
         // start search from favorites:
         if (/^#{2}.+#{2}$/.test(data)) {
-            const busStop = data.replace(/\#/g, '');
+            const busStop = data.replace(/#/g, '');
 
             const [_, searchResult] = await Promise.all([
                 this.bot.sendMessage(chatId, '👌'),
@@ -267,7 +267,6 @@ class QueryHandler {
     }
     async handleGuess(query, userData) {
         const {
-            from: { id: userId },
             data,
             message: {
                 date,

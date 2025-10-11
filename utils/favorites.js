@@ -1,4 +1,4 @@
-const { BUS_STOPS } = require('../dict/seleniumTexts');
+const { BUS_STOPS } = require('../dict/scrapingTexts');
 
 /**
  * Splits an array into smaller chunks of specified size
