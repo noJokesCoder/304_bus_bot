@@ -7,7 +7,7 @@ async function runPlaywrightScript({ time: { hours, minutes, day }, direction, b
     const browser = await chromium.launch({ headless: true });
     const page = await browser.newPage();
     // Use the fixed size to make sure we have the elements in the viewport:
-    page.setViewportSize({ width: 768, height: 700 });
+    await page.setViewportSize({ width: 768, height: 700 });
 
     let busesForCurrentHour = [];
     let busesForNextHour = [];
