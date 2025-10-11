@@ -1,4 +1,4 @@
-const { BUS_STOPS } = require('../dict/seleniumTexts.js');
+const { BUS_STOPS } = require('../dict/scrapingTexts.js');
 
 // fuzzy match: allow up to 2 character differences (Levenshtein distance)
 const levenshtein = (a, b) => {

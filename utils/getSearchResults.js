@@ -1,5 +1,5 @@
-const runSeleniumScript = require('./seleniumScript.js');
-const { WEEKDAYS } = require('../dict/seleniumTexts.js');
+const runPlaywrightScript = require('./scrapingScript.js');
+const { WEEKDAYS } = require('../dict/scrapingTexts.js');
 const i18n = require('../i18n');
 const { normalizeBusStop } = require('./normalizeBusStop.js');
 /**
@@ -52,7 +52,11 @@ const getSearchResults = async ({ stop: busStop, date, direction, lang = 'en' })
         return outputMessage;
     }
 
-    const results = await runSeleniumScript({ time: { hours, minutes, day }, direction, busStop });
+    const results = await runPlaywrightScript({
+        time: { hours, minutes, day },
+        direction,
+        busStop,
+    });
 
     outputMessage =
         results.busesForCurrentHour.length || results.busesForNextHour.length
