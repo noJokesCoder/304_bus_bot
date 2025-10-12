@@ -7,7 +7,7 @@
         "playwright": "^1.56.0"
     },
     "scripts": {
-        "build": "npx install playwright && npm install",
+        "build": "npm install && npx install playwright",
         "run_selenium": "SELENIUM='https://reisinfo.rrreis.nl/nl/rrreis/lijnen/4304/dienstregeling/heen' node utils/seleniumScript.js",
         "start": "node index.js",
         "dev": "node --env-file=.env index.js"
