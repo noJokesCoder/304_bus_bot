@@ -1,7 +1,7 @@
 const { DIRECTIONS, WEEKDAYS } = require('../dict/scrapingTexts.js');
 const { chromium } = require('playwright');
 
-const { SELENIUM, NODE_ENV } = process.env;
+const { TARGET_URL, NODE_ENV } = process.env;
 
 async function runPlaywrightScript({ time: { hours, minutes, day }, direction, busStop }) {
     const browser = await chromium.launch({ headless: true });
@@ -13,7 +13,7 @@ async function runPlaywrightScript({ time: { hours, minutes, day }, direction, b
     let busesForNextHour = [];
 
     try {
-        await page.goto(SELENIUM, { waitUntil: 'domcontentloaded' });
+        await page.goto(TARGET_URL, { waitUntil: 'domcontentloaded' });
 
         // Remove cookies banner if present
         const cookiesButton = await page.$(
