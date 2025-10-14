@@ -1,6 +1,6 @@
 const { saveUserData, loadUserData } = require('../../utils/dbFuncs');
 const { BOT_COMMANDS } = require('../../dict/botTexts');
-const SELENIUM = process.env.SELENIUM;
+const { TARGET_URL } = process.env;
 const i18n = require('i18n');
 
 /** @typedef {import('node-telegram-bot-api')} TelegramBot */
@@ -117,7 +117,7 @@ class CommandHandler {
 
             await this.bot.sendMessage(
                 msg.chat.id,
-                `${i18n.__({ phrase: 'command_link', locale: language_code })} ${SELENIUM}`,
+                `${i18n.__({ phrase: 'command_link', locale: language_code })} ${TARGET_URL}`,
                 {
                     reply_markup: {
                         inline_keyboard: [
