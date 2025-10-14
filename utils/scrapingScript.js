@@ -26,6 +26,7 @@ async function runPlaywrightScript({ time: { hours, minutes, day }, direction, b
         // Set the direction
         const isWeekend = day === WEEKDAYS.SUNDAY || day === WEEKDAYS.SATURDAY;
         await page.click('.reisplanner-select');
+        await page.waitForLoadState('domcontentloaded');
         await page.selectOption(
             '.reisplanner-select',
             direction === DIRECTIONS.ZWOLLE ? 'Return' : 'Away'
