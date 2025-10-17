@@ -16,7 +16,7 @@ async function runPlaywrightScript({ time: { hours, minutes, day }, direction, b
         await page.goto(TARGET_URL, { waitUntil: 'domcontentloaded' });
 
         // Remove cookies banner if present
-        const cookiesButton = await page.$(
+        const cookiesButton = await page.waitForSelector(
             '#CybotCookiebotDialogBodyLevelButtonLevelOptinAllowallSelection'
         );
         if (cookiesButton) {
